@@ -21,7 +21,8 @@ contract Voting{
     }
     
     mapping (uint => Candidate) public candidates;
-    mapping (string => Voter) voters; // one address one vote , String --> Adr and Voter --> Bool
+    mapping (string => Voter) voted; // one address one vote , String --> Adr and Voter --> Bool
+    mapping (address => bool ) eligiblevoter ;
     
     constructor(){
         admin = msg.sender;
@@ -31,15 +32,16 @@ contract Voting{
         require(msg.sender == admin,"Only Admin");
         _;
     }
-    
+    // voting phase should be there
     function candidateEnrollment(string memory name,string memory description) public onlyAdmin {
         uint candidateID = noOfCandidates++;
         candidates[candidateID] = Candidate(name,description,0);
         //Event emit
     }
     
-    //vote ---> check if voted --> canditate id param
-
+    //vote ---> check if voted, eligible voter --> canditate id param --> Vote Struct ++ --> Bool , voting phase 
+    // add voter --> admin only --> to add voter in mapping 
+    // enum , enum phase change admin only function 
     function voterEnrollment(string memory name,uint candidateID) public  returns(string memory){
         require(voters[name].hasVoted == false);
         ++noOfVoters;
@@ -47,14 +49,7 @@ contract Voting{
         candidates[candidateID].noOfVotes += 1;
         return "You have successfully voted";
     }
-    function candidateIDGenerator(string memory name) public view returns(uint){
-        for(uint i =0;i<noOfCandidates;i++){
-            string memory findingName = candidates[i].candidate_name;
-            if(keccak256(abi.encodePacked(findingName)) == keccak256(abi.encodePacked(name))){
-                return i;
-            }
-        }
-    }
+    // result end 
     function results() public onlyAdmin view returns (string memory){
         uint maxVotes = candidates[0].noOfVotes;
         uint candidateID;
