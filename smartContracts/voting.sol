@@ -2,32 +2,44 @@
 pragma solidity >0.8.0;
 
 contract Voting{
-    uint noOfVoters;
+
+    uint noOfVoters; // Number of Voters
     uint noOfCandidates;
+    
     address admin;
-    mapping (uint => Candidate) public candidates;
-    mapping (string => Voter) voters;
+    
+  
     struct Candidate{
         string candidate_name;
         string candidate_description;
         uint noOfVotes;
     }
-    struct Voter{
-        uint candidate_id;
+   
+   struct Voter{
+        uint candidate_id; //vote should be ano..
         bool hasVoted;
     }
+    
+    mapping (uint => Candidate) public candidates;
+    mapping (string => Voter) voters; // one address one vote , String --> Adr and Voter --> Bool
+    
     constructor(){
         admin = msg.sender;
     }
+    
     modifier onlyAdmin(){
-        require(msg.sender == admin,"Access is Denied");
+        require(msg.sender == admin,"Only Admin");
         _;
     }
-    function candidateEnrollment(string memory name,string memory description) public onlyAdmin returns(string memory){
+    
+    function candidateEnrollment(string memory name,string memory description) public onlyAdmin {
         uint candidateID = noOfCandidates++;
         candidates[candidateID] = Candidate(name,description,0);
-        return "You will be added to candidate list once you are validated by the admin";
+        //Event emit
     }
+    
+    //vote ---> check if voted --> canditate id param
+
     function voterEnrollment(string memory name,uint candidateID) public  returns(string memory){
         require(voters[name].hasVoted == false);
         ++noOfVoters;
