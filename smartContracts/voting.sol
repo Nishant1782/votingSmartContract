@@ -11,8 +11,8 @@ contract Voting{
     Phases electionPhases;
 
     struct Candidate{
+        address candidate_address;
         string candidate_name;
-        string candidate_description;
         uint noOfVotes;
     }
    
@@ -23,7 +23,7 @@ contract Voting{
     
     mapping (uint => Candidate) public candidates;
     mapping (string => Voter) voters;
-    mapping (address => Voter) eligibleVotersList ;
+    mapping (address => Voter) eligibleVotersList;
     
     constructor(){
         admin = msg.sender;
@@ -56,28 +56,29 @@ contract Voting{
         }
     }
     // voting phase should be there
-    function candidateEnrollment(string memory name,string memory description) public onlyAdmin {
+    function candidateEnrollment(string memory name,address candidate_address) public onlyAdmin {
         require(electionPhases == Phases.EnrollmentPhase);
         uint candidateID = noOfCandidates++;
-        candidates[candidateID] = Candidate(name,description,0);
+        candidates[candidateID] = Candidate(candidate_address,name,0);
         //Event emit
     }
     
     //vote ---> check if voted, eligible voter --> canditate id param --> Vote Struct ++ --> Bool , voting phase 
     // add voter --> admin only --> to add voter in mapping 
     // enum , enum phase change admin only function 
-    function voterEnrollment(string memory name) public onlyAdmin {
+    function voterEnrollment(address voter_address) public onlyAdmin {
         require(electionPhases == Phases.EnrollmentPhase);
-        require(eligibleVotersList[msg.sender].isValid == false);
-        eligibleVotersList[msg.sender].isValid == true;    
-
+        require(eligibleVotersList[voter_address].isValid == false);
+        eligibleVotersList[voter_address].isValid = true; 
+        // eligibleVotersList[voter].voter_address = voter;
+        noOfVoters++;    
     }
-    function vote(string memory name,uint candidateID) public  returns(string memory){
-        require(electionPhases == Phases.EnrollmentPhase);
-        require(voters[name].hasVoted == false);
-        ++noOfVoters;
-        voters[name] = Voter(true);
+    function vote(uint candidateID) public returns(string memory){
+        require(electionPhases == Phases.VotingPhase);
+        require(eligibleVotersList[msg.sender].isValid == true);
+        require(eligibleVotersList[msg.sender].hasVoted == false);
         candidates[candidateID].noOfVotes += 1;
+        eligibleVotersList[msg.sender].hasVoted = true;
         return "You have successfully voted";
     }
     // result end 
